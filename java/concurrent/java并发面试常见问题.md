@@ -7,6 +7,7 @@
 * 实现Callable接口通过FutureTask包装器来创建Thread线程
 
 ```java
+//代码来自网络
 public class SomeCallable<V> extends OtherClass implements Callable<V> {
 
     @Override
@@ -39,7 +40,7 @@ public class BestPractice extends Thread {
     }
     @Override
     public void run() {
-        while (!finished) {    // ③ 检测条件变量
+        while (!finished) {    // ③ 检测条件变量（也可以使用isInterrupted()来代替此变量）
         try {
                 // do dirty work   // ④业务代码
         } catch (InterruptedException e) {
@@ -53,7 +54,15 @@ public class BestPractice extends Thread {
 }
 ```
 
-思考：volatile变量的作用
+思考1：为什么不用stop()方法或suspend()与resume()？
+
+stop()已被弃用，因为它会强制中断线程的执行，还会释放这个线程所持有的所有的锁对象，如果此时有其他因为请求锁而被阻塞的线程存在，则会立即获取锁，可能会造成数据的不一致。
+
+suspend被弃用的原因是因为它会造成死锁。suspend方法和stop方法不一样，它不会破换对象和强制释放锁，相反它会一直保持对锁的占有，一直到其他的线程调用resume方法，它才能继续向下执行。假如有A，B两个线程，A线程在获得某个锁之后被suspend阻塞，这时A不能继续执行，线程B在获得相同的锁之后才能调用resume方法将A唤醒，但是此时的锁被A占有，B不能继续执行，也就不能及时的唤醒A，此时A，B两个线程都不能继续向下执行而形成了死锁。这就是suspend被弃用的原因。
+
+思考2：volatile变量的作用？
+
+将引用变量finished的类型前加上volatile关键字的目的是防止编译器对该变量存取时的优化，这种优化主要是缓存对变量的修改，这将使其他线程不会立刻看到修改后的finished值，从而影响退出。此外，Java标准保证被volatile修饰的变量的读写都是原子的
 
 ##### 3. notify()和notifyAll()有什么区别？
 
