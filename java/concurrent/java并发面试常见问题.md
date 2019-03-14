@@ -53,7 +53,7 @@ public class BestPractice extends Thread {
 }
 ```
 
-思考：volatile变量的作用，
+思考：volatile变量的作用
 
 ##### 3. notify()和notifyAll()有什么区别？
 
