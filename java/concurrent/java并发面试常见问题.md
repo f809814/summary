@@ -67,9 +67,38 @@ suspend被弃用的原因是因为它会造成死锁。suspend方法和stop方�
 ##### 3. notify()和notifyAll()有什么区别？
 
 * * *
-##### 4. sleep()和 wait()有什么区别?
+锁池和等待池：
+
+- 锁池:假设线程A已经拥有了某个对象的锁，而其它的线程想要调用这个对象的某个synchronized方法(或者synchronized块)，由于这些线程在进入对象的synchronized方法之前必须先获得该对象的锁的拥有权，但是该对象的锁目前正被线程A拥有，所以这些线程就进入了该对象的锁池中。
+- 等待池:假设一个线程A调用了某个对象的wait()方法，线程A就会释放该对象的锁后，进入到了该对象的等待池中
+
+> Reference：[java中的锁池和等待池 ](https://link.zhihu.com/?target=http%3A//blog.csdn.net/emailed/article/details/4689220)
+
+notify和notifyAll的区别：
+
+-  如果线程调用了对象的 wait()方法，那么线程便会处于该对象的**等待池**中，等待池中的线程**不会去竞争该对象的锁**。
+- 当有线程调用了对象的 `notifyAll`方法（唤醒所有 wait 线程）或 `notify`方法（只随机唤醒一个 wait 线程），被唤醒的的线程便会进入该对象的锁池中，锁池中的线程会去竞争该对象锁。也就是说，调用了`notify`后只要一个线程会由等待池进入锁池，而`notifyAll`会将该对象等待池内的所有线程移动到锁池中，等待锁竞争
+- 优先级高的线程竞争到对象锁的概率大，假若某线程没有竞争到该对象锁，它**还会留在锁池中**，唯有线程再次调用 `wait`()方法，它才会重新回到等待池中。而竞争到对象锁的线程则继续往下执行，直到执行完了 `synchronized` 代码块，它会释放掉该对象锁，这时锁池中的线程会继续竞争该对象锁。
+
+> Reference：[线程间协作：wait、notify、notifyAll ](https://link.zhihu.com/?target=http%3A//wiki.jikexueyuan.com/project/java-concurrency/collaboration-between-threads.html)
+
+综上，所谓唤醒线程，另一种解释可以说是将线程由等待池移动到锁池，notifyAll调用后，会将全部线程由等待池移到锁池，然后参与锁的竞争，竞争成功则继续执行，如果不成功则留在锁池等待锁被释放后再次参与竞争。而notify只会唤醒一个线程。
+
+注意：使用notify可能会出现所有线程都进入等待池，程序将挂起。
+
+##### 4. `sleep()`和 `wait()`有什么区别?
+
 * * *
+**`sleep()`**使当前线程进入停滞状态（阻塞当前线程），让出cpu的使用、目的是不让当前线程独自霸占该进程所获的cpu资源，以留一定时间给其他线程执行的机会，`sleep`()是`Thread`类的`static`(静态)的方法，因此他不能改变对象的机锁，所以当在一个`Synchronized`块中调用`sleep()`方法是，线程虽然休眠了，但是对象的机锁并木有被释放，其他线程无法访问这个对象（即使睡着也持有对象锁），在`sleep()`休眠时间期满后，该线程不一定会立即执行，这是因为其它线程可能正在运行而且没有被调度为放弃执行，除非此线程具有更高的优先级。 
+
+**`wait()`**方法是`Object`类里的方法；当一个线程执行到`wait()`方法时，它就进入到一个和该对象相关的等待池中，同时失去（释放）了对象的机锁（暂时失去机锁，`wait(long timeout)`超时时间到后还需要返还对象锁）,其他线程可以访问，`wait()`使用`notify`或者`notifyAlll`或者指定睡眠时间来唤醒当前等待池中的线程，**`wait`,`notify`和`notifyAll`方法必须在同步方法或同步块中调用，否则会抛出`java.lang.IllegalMonitorStateException`异常**。
+
+> wait():This method should only be called by a thread that is the owner of this object's monitor.
+>
+> 例如，生产者线程向缓冲区中写入数据，消费者线程从缓冲区中读取数据。消费者线程需要等待直到生产者线程完成一次写入操作。生产者线程需要等待消费者线程完成一次读取操作。假设wait(),notify(),notifyAll()方法不需要加锁就能够被调用。此时消费者线程调用wait()正在进入状态变量的等待队列(译者注:可能还未进入)。在同一时刻，生产者线程调用notify()方法打算向消费者线程通知状态改变。那么此时消费者线程将错过这个通知并一直阻塞。因此，对象的wait(),notify(),notifyAll()方法必须在该对象的同步方法或同步代码块中被互斥地调用。
+
 ##### 5. 什么是Daemon线程？它有什么意义？
+
 * * *
 ##### 6. java如何实现多线程之间的通讯和协作？
 * * *
