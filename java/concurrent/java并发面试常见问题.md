@@ -116,12 +116,21 @@ User和Daemon两者几乎没有区别，唯一的不同之处就在于虚拟机�
 * * *
 > 引用博客--[Java 并发：线程间通信与协作](https://blog.csdn.net/justloveyou_/article/details/54929949)
 
-##### 7. 锁什么是可重入锁（ReentrantLock）？
+##### 7. 锁，什么是可重入锁（ReentrantLock）？
 
 * * *
 ##### 8. 当一个线程进入某个对象的一个synchronized的实例方法后，其它线程是否可进入此对象的其它方法？
 * * *
+要依据其他方法是否也为synchronized的实例方法：
+
+- 如果没有`synchronized`修饰，可以访问；
+- 如果有`synchronized`修饰但是为`static`方法，可以访问；
+- 如果是`synchronized`修饰的的实例方法，不能访问；
+- 如果这个方法内部调用了`wait`，并进入了等待状态(已经释放了锁)，则可以进入其他`synchronized`方法。
+  - 注意:调用的`wait`方法必须为**`this.wait()`** 才能访问其他`synchronized`方法，因为只有`this.wait()`才是释放的本对象的锁，其他线程才能访问本对象的其他同步示例方法。
+
 ##### 9. synchronized和java.util.concurrent.locks.Lock的异同？
+
 * * *
 ##### 10. 乐观锁和悲观锁的理解及如何实现，有哪些实现方式？
 * * *
@@ -131,7 +140,18 @@ User和Daemon两者几乎没有区别，唯一的不同之处就在于虚拟机�
 * * *
 ##### 13. 线程安全什么叫线程安全？servlet是线程安全吗?
 * * *
+一个不论运行时（Runtime）如何调度线程都不需要调用方提供额外的同步和协调机制还能正确地运行的类是线程安全的
+
+Servlet本身是无状态的，**一个无状态的Servlet是绝对线程安全的，无状态对象设计也是解决线程安全问题的一种有效手段**。所以，servlet是否线程安全是由它的实现来决定的，如果它内部的属性或方法会被多个线程改变，它就是线程不安全的，反之，就是线程安全的
+
+- 避免使用实例变量
+- 避免使用非线程安全的集合
+- 在多个Servlet中对某个外部对象(例如文件)的修改是务必加锁（Synchronized，或者ReentrantLock），互斥访问。
+- 属性的线程安全：ServletContext、HttpSession是非线程安全的；ServletRequest是线程安全的。
+  - HttpSession只能在处理属于同一个Session的请求的线程中被访问，因此Session对象的属性访问理论上是线程安全的，但当用户打开多个同属于一个进程的浏览器窗口，在这些窗口的访问属于同一个Session，会出现多次请求，需要多个工作线程来处理请求，可能造成同时多线程读写属性。
+
 ##### 14. 同步有几种实现方法？
+
 * * *
 ##### 15. volatile有什么用？能否用一句话说明下volatile的应用场景？
 * * *
