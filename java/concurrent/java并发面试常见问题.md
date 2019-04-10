@@ -66,6 +66,8 @@ suspend被弃用的原因是因为它会造成死锁。suspend方法和stop方�
 
 将引用变量finished的类型前加上volatile关键字的目的是防止编译器对该变量存取时的优化，这种优化主要是缓存对变量的修改，这将使其他线程不会立刻看到修改后的finished值，从而影响退出。此外，Java标准保证被volatile修饰的变量的读写都是原子的
 
+思考3：无法中断正在等待获取synchronized锁的线程（reentrantLock.lock()方法也是一样），可以调用reentrantLock.lockInterruptibly()方法或者带超时的tryLock方法reentrantLock.tryLock。（**TODO**）
+
 ##### 3. notify()和notifyAll()有什么区别？
 
 * * *
