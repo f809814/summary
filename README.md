@@ -1,6 +1,6 @@
-## <h1 align="center">Java面试常见知识点</h1>
+<h1 align="center">Java面试常见知识点</h1>
 
-
+本项目是一些基础知识的记录，其中大部分内容来自于一些技术博客或教材，主要用于记录知识点。
 
 ### 目录
 
@@ -20,5 +20,5 @@
   * Mysql
 * 计算机网络
 * 框架
-  * spring
+  * spring原理
   * mybatis
