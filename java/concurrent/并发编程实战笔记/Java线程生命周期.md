@@ -1,6 +1,4 @@
-<h4 align="center">Java线程生命周期</h4>
----
-
+<h2 align="center">Java线程生命周期</h2>
 #### 1.Java线程的6种状态
 
 
