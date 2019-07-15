@@ -1,5 +1,6 @@
-<h4 align="center"> String、StringBuffer和StringBuilder区别</h4>
-##### 1.String.intern()在JDK1.6之前和之后的变化
+<h2 align="center"> String、StringBuffer和StringBuilder区别</h2>
+
+#### 1.String.intern()在JDK1.6之前和之后的变化
 
 ***
 
